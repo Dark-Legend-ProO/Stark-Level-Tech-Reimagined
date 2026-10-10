@@ -1,4 +1,5 @@
--- Run this inside the Developer Console Command Bar (Client Context)
+-- STARK LEVEL TECH: REIMAGINED IS OFFICIALLY OUT!
+
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 local TweenService = game:GetService("TweenService")
@@ -35,56 +36,185 @@ local lastChatTime = 0
 local CHAT_COOLDOWN = 0.5
 
 --------------------------------------------------------------------------------
--- 2. HIGH-END RED STARK HUD UI (WITH LERP DRAGGING & FALLING STARS)
+-- 2. THEMES CONFIGURATION
+--------------------------------------------------------------------------------
+local Themes = {
+	Burgundy = {
+		MainBg = Color3.fromRGB(24, 8, 12),
+		ConsoleBg = Color3.fromRGB(14, 4, 8),
+		Accent = Color3.fromRGB(220, 45, 75),
+		Stroke = Color3.fromRGB(255, 60, 90),
+		Text = Color3.fromRGB(255, 210, 220),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 30, 70)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 180, 200)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(180, 10, 40))
+		})
+	},
+	Purple = {
+		MainBg = Color3.fromRGB(18, 8, 26),
+		ConsoleBg = Color3.fromRGB(10, 4, 16),
+		Accent = Color3.fromRGB(150, 50, 220),
+		Stroke = Color3.fromRGB(180, 80, 255),
+		Text = Color3.fromRGB(230, 200, 255),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(180, 40, 255)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 180, 255)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(110, 10, 180))
+		})
+	},
+	Yellow = {
+		MainBg = Color3.fromRGB(26, 20, 8),
+		ConsoleBg = Color3.fromRGB(16, 12, 4),
+		Accent = Color3.fromRGB(230, 170, 30),
+		Stroke = Color3.fromRGB(255, 200, 50),
+		Text = Color3.fromRGB(255, 235, 180),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 190, 40)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 235, 170)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(180, 120, 10))
+		})
+	},
+	Blue = {
+		MainBg = Color3.fromRGB(8, 16, 26),
+		ConsoleBg = Color3.fromRGB(4, 10, 18),
+		Accent = Color3.fromRGB(40, 130, 240),
+		Stroke = Color3.fromRGB(80, 160, 255),
+		Text = Color3.fromRGB(200, 230, 255),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(30, 120, 255)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 220, 255)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(10, 80, 180))
+		})
+	},
+	Emerald = {
+		MainBg = Color3.fromRGB(8, 24, 16),
+		ConsoleBg = Color3.fromRGB(4, 14, 8),
+		Accent = Color3.fromRGB(30, 200, 100),
+		Stroke = Color3.fromRGB(60, 255, 140),
+		Text = Color3.fromRGB(200, 255, 220),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(20, 180, 80)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(170, 255, 210)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(10, 120, 50))
+		})
+	},
+	Sunset = {
+		MainBg = Color3.fromRGB(26, 14, 8),
+		ConsoleBg = Color3.fromRGB(16, 8, 4),
+		Accent = Color3.fromRGB(240, 110, 30),
+		Stroke = Color3.fromRGB(255, 150, 60),
+		Text = Color3.fromRGB(255, 220, 200),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(230, 90, 20)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 200, 160)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(160, 60, 10))
+		})
+	},
+	Cyberpunk = {
+		MainBg = Color3.fromRGB(12, 12, 24),
+		ConsoleBg = Color3.fromRGB(6, 6, 14),
+		Accent = Color3.fromRGB(0, 240, 255),
+		Stroke = Color3.fromRGB(100, 255, 255),
+		Text = Color3.fromRGB(200, 255, 255),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(0, 200, 240)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 255, 255)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(0, 100, 160))
+		})
+	},
+	Rose = {
+		MainBg = Color3.fromRGB(26, 10, 20),
+		ConsoleBg = Color3.fromRGB(14, 4, 10),
+		Accent = Color3.fromRGB(255, 75, 160),
+		Stroke = Color3.fromRGB(255, 130, 200),
+		Text = Color3.fromRGB(255, 210, 240),
+		CoreGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, Color3.fromRGB(240, 50, 140)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 190, 220)),
+			ColorSequenceKeypoint.new(1.0, Color3.fromRGB(160, 20, 90))
+		})
+	}
+}
+
+local currentTheme = Themes.Burgundy
+
+--------------------------------------------------------------------------------
+-- 3. UI CREATION
 --------------------------------------------------------------------------------
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "JarvisArcHUD"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = CoreGui
 
+local OuterHolder = Instance.new("Frame")
+OuterHolder.Name = "OuterHolder"
+OuterHolder.Size = UDim2.new(0, 330, 0, 420)
+OuterHolder.Position = UDim2.new(0.85, -165, 0.65, -210)
+OuterHolder.BackgroundTransparency = 1
+OuterHolder.Parent = ScreenGui
+
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 330, 0, 410)
-MainFrame.Position = UDim2.new(0.85, -165, 0.65, -205)
-MainFrame.BackgroundColor3 = Color3.fromRGB(10, 2, 4)
-MainFrame.BackgroundTransparency = 0.08
+MainFrame.Size = UDim2.new(1, 0, 1, 0)
+MainFrame.BackgroundColor3 = currentTheme.MainBg
+MainFrame.BackgroundTransparency = 0.25
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.ClipsDescendants = true
-MainFrame.Parent = ScreenGui
+MainFrame.Parent = OuterHolder
 
 local MainUICorner = Instance.new("UICorner")
-MainUICorner.CornerRadius = UDim.new(0, 10)
+MainUICorner.CornerRadius = UDim.new(0, 12)
 MainUICorner.Parent = MainFrame
 
 local MainUIStroke = Instance.new("UIStroke")
-MainUIStroke.Color = Color3.fromRGB(255, 35, 65)
+MainUIStroke.Color = currentTheme.Stroke
 MainUIStroke.Thickness = 1.2
-MainUIStroke.Transparency = 0.2
+MainUIStroke.Transparency = 0.3
 MainUIStroke.Parent = MainFrame
 
--- SMOOTH INERTIAL LERP DRAGGING LOGIC
+local SettingsFrame = Instance.new("ScrollingFrame")
+SettingsFrame.Name = "SettingsFrame"
+SettingsFrame.Size = UDim2.new(1, -20, 1, -55)
+SettingsFrame.Position = UDim2.fromOffset(10, 48)
+SettingsFrame.BackgroundTransparency = 1
+SettingsFrame.BorderSizePixel = 0
+SettingsFrame.Visible = false
+SettingsFrame.ZIndex = 50
+SettingsFrame.ScrollBarThickness = 3
+SettingsFrame.ScrollBarImageColor3 = currentTheme.Accent
+SettingsFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+SettingsFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+SettingsFrame.CanvasSize = UDim2.new()
+SettingsFrame.Parent = MainFrame
+
+-- Inertial Dragging
 local dragging = false
 local dragStart, startPos
-local targetPos = MainFrame.Position
+local targetPos = OuterHolder.Position
 
-local inputBeganConn = MainFrame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = MainFrame.Position
-	end
-end)
-table.insert(_G.JarvisConnections, inputBeganConn)
+local function setupDrag(frame)
+	local bConn = frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = OuterHolder.Position
+		end
+	end)
+	table.insert(_G.JarvisConnections, bConn)
 
-local inputEndedConn = MainFrame.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = false
-	end
-end)
-table.insert(_G.JarvisConnections, inputEndedConn)
+	local eConn = frame.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = false
+		end
+	end)
+	table.insert(_G.JarvisConnections, eConn)
+end
 
-local inputChangedConn = UserInputService.InputChanged:Connect(function(input)
+setupDrag(MainFrame)
+
+local cConn = UserInputService.InputChanged:Connect(function(input)
 	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
 		targetPos = UDim2.new(
@@ -95,98 +225,132 @@ local inputChangedConn = UserInputService.InputChanged:Connect(function(input)
 		)
 	end
 end)
-table.insert(_G.JarvisConnections, inputChangedConn)
+table.insert(_G.JarvisConnections, cConn)
 
 local lerpConn = RunService.RenderStepped:Connect(function(dt)
-	-- Smooth interpolation toward target drag position
-	MainFrame.Position = MainFrame.Position:Lerp(targetPos, math.min(1, dt * 10))
+	OuterHolder.Position = OuterHolder.Position:Lerp(targetPos, math.min(1, dt * 10))
 end)
 table.insert(_G.JarvisConnections, lerpConn)
 
--- Stars Background Container
+-- Particles
 local StarContainer = Instance.new("Frame")
-StarContainer.Name = "StarContainer"
 StarContainer.Size = UDim2.new(1, 0, 1, 0)
 StarContainer.BackgroundTransparency = 1
 StarContainer.ClipsDescendants = true
 StarContainer.Parent = MainFrame
 
--- Particle Spawner (Falling Red Stars)
 local starChars = {"★", "✦", "✧", "•"}
 local function spawnFallingStar()
 	local star = Instance.new("TextLabel")
-	star.Size = UDim2.new(0, 14, 0, 14)
+	star.Size = UDim2.new(0, 12, 0, 12)
 	local startX = math.random(5, 320) / 330
 	star.Position = UDim2.new(startX, 0, -0.05, 0)
 	star.BackgroundTransparency = 1
 	star.Text = starChars[math.random(1, #starChars)]
-	star.TextColor3 = Color3.fromRGB(255, math.random(30, 80), math.random(50, 100))
-	star.TextTransparency = math.random(2, 6) / 10
-	star.TextSize = math.random(8, 14)
-	star.Font = Enum.Font.Code
+	star.TextColor3 = currentTheme.Stroke
+	star.TextTransparency = math.random(3, 7) / 10
+	star.TextSize = math.random(8, 12)
+	star.Font = Enum.Font.GothamMedium
 	star.Parent = StarContainer
 
 	local fallDuration = math.random(25, 45) / 10
-	local endY = 1.05
-
 	local fallTween = TweenService:Create(star, TweenInfo.new(fallDuration, Enum.EasingStyle.Linear), {
-		Position = UDim2.new(startX, math.random(-20, 20), endY, 0),
+		Position = UDim2.new(startX, math.random(-20, 20), 1.05, 0),
 		TextTransparency = 1
 	})
-
 	fallTween:Play()
-	fallTween.Completed:Connect(function()
-		star:Destroy()
-	end)
+	fallTween.Completed:Connect(function() star:Destroy() end)
 end
 
--- Infinite Star Loop
 local starTimer = 0
 local starConn = RunService.Heartbeat:Connect(function(dt)
 	starTimer = starTimer + dt
-	if starTimer >= 0.12 then
+	if starTimer >= 0.15 then
 		starTimer = 0
 		spawnFallingStar()
 	end
 end)
 table.insert(_G.JarvisConnections, starConn)
 
--- Top Banner Header
+-- Top Banner
 local TopBanner = Instance.new("TextLabel")
-TopBanner.Name = "TopBanner"
-TopBanner.Size = UDim2.new(1, -20, 0, 16)
-TopBanner.Position = UDim2.new(0, 10, 0, 6)
+TopBanner.Size = UDim2.new(1, -90, 0, 18)
+TopBanner.Position = UDim2.new(0, 12, 0, 8)
 TopBanner.BackgroundTransparency = 1
 TopBanner.Text = "STARK LEVEL TECH: REIMAGINED"
-TopBanner.TextColor3 = Color3.fromRGB(255, 60, 80)
-TopBanner.TextSize = 9
-TopBanner.Font = Enum.Font.Code
+TopBanner.TextColor3 = currentTheme.Text
+TopBanner.TextSize = 10
+TopBanner.Font = Enum.Font.GothamBold
 TopBanner.TextXAlignment = Enum.TextXAlignment.Left
 TopBanner.Parent = MainFrame
 
 local AccentLine = Instance.new("Frame")
-AccentLine.Size = UDim2.new(1, -20, 0, 1)
-AccentLine.Position = UDim2.new(0, 10, 0, 26)
-AccentLine.BackgroundColor3 = Color3.fromRGB(255, 40, 70)
-AccentLine.BackgroundTransparency = 0.4
+AccentLine.Size = UDim2.new(1, -24, 0, 1)
+AccentLine.Position = UDim2.new(0, 12, 0, 30)
+AccentLine.BackgroundColor3 = currentTheme.Stroke
+AccentLine.BackgroundTransparency = 0.5
 AccentLine.BorderSizePixel = 0
 AccentLine.Parent = MainFrame
 
--- Red Arc Reactor Container
+-- Chats Button
+local ChatToggleBtn = Instance.new("TextButton")
+ChatToggleBtn.Size = UDim2.new(0, 48, 0, 18)
+ChatToggleBtn.Position = UDim2.new(1, -124, 0, 8)
+ChatToggleBtn.BackgroundColor3 = currentTheme.Accent
+ChatToggleBtn.Text = "Chats"
+ChatToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ChatToggleBtn.TextSize = 9
+ChatToggleBtn.Font = Enum.Font.GothamMedium
+ChatToggleBtn.Parent = MainFrame
+
+local ChatBtnCorner = Instance.new("UICorner")
+ChatBtnCorner.CornerRadius = UDim.new(0, 4)
+ChatBtnCorner.Parent = ChatToggleBtn
+
+-- Themes Button
+local SettingsBtn = Instance.new("TextButton")
+SettingsBtn.Size = UDim2.new(0, 58, 0, 18)
+SettingsBtn.Position = UDim2.new(1, -70, 0, 8)
+SettingsBtn.BackgroundColor3 = currentTheme.Accent
+SettingsBtn.Text = "Themes"
+SettingsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SettingsBtn.TextSize = 9
+SettingsBtn.Font = Enum.Font.GothamBold
+SettingsBtn.Parent = MainFrame
+
+local SettingsBtnCorner = Instance.new("UICorner")
+SettingsBtnCorner.CornerRadius = UDim.new(0, 4)
+SettingsBtnCorner.Parent = SettingsBtn
+
+-- Back Button
+local SettingsCloseBtn = Instance.new("TextButton")
+SettingsCloseBtn.Size = UDim2.new(0, 58, 0, 18)
+SettingsCloseBtn.Position = UDim2.new(1, -70, 0, 8)
+SettingsCloseBtn.BackgroundColor3 = currentTheme.Accent
+SettingsCloseBtn.Text = "Back"
+SettingsCloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SettingsCloseBtn.TextSize = 9
+SettingsCloseBtn.Font = Enum.Font.GothamBold
+SettingsCloseBtn.Visible = false
+SettingsCloseBtn.ZIndex = 60
+SettingsCloseBtn.Parent = MainFrame
+
+local SettingsCloseCorner = Instance.new("UICorner")
+SettingsCloseCorner.CornerRadius = UDim.new(0, 4)
+SettingsCloseCorner.Parent = SettingsCloseBtn
+
+-- Arc Reactor
 local ReactorContainer = Instance.new("Frame")
-ReactorContainer.Name = "ArcReactor"
-ReactorContainer.Size = UDim2.new(0, 70, 0, 70)
-ReactorContainer.Position = UDim2.new(0, 12, 0, 34)
+ReactorContainer.Size = UDim2.new(0, 56, 0, 56)
+ReactorContainer.Position = UDim2.new(0.5, -28, 0, 36)
 ReactorContainer.BackgroundTransparency = 1
 ReactorContainer.Parent = MainFrame
 
--- Diamond/Triangular Core Frame
 local TriangleOuter = Instance.new("Frame")
-TriangleOuter.Name = "TriangleCore"
-TriangleOuter.Size = UDim2.new(0, 64, 0, 64)
-TriangleOuter.Position = UDim2.new(0.5, -32, 0.5, -32)
+TriangleOuter.Size = UDim2.new(0, 48, 0, 48)
+TriangleOuter.Position = UDim2.new(0.5, -24, 0.5, -24)
 TriangleOuter.Rotation = 45
-TriangleOuter.BackgroundColor3 = Color3.fromRGB(40, 5, 10)
+TriangleOuter.BackgroundColor3 = currentTheme.MainBg
 TriangleOuter.BorderSizePixel = 0
 TriangleOuter.Parent = ReactorContainer
 
@@ -195,15 +359,14 @@ TriangleOuterCorner.CornerRadius = UDim.new(0, 8)
 TriangleOuterCorner.Parent = TriangleOuter
 
 local TriangleOuterStroke = Instance.new("UIStroke")
-TriangleOuterStroke.Color = Color3.fromRGB(255, 40, 80)
-TriangleOuterStroke.Thickness = 2
+TriangleOuterStroke.Color = currentTheme.Stroke
+TriangleOuterStroke.Thickness = 1.5
 TriangleOuterStroke.Parent = TriangleOuter
 
 local TriangleInner = Instance.new("Frame")
-TriangleInner.Name = "InnerTriangle"
-TriangleInner.Size = UDim2.new(0, 48, 0, 48)
-TriangleInner.Position = UDim2.new(0.5, -24, 0.5, -24)
-TriangleInner.BackgroundColor3 = Color3.fromRGB(255, 180, 190)
+TriangleInner.Size = UDim2.new(0, 34, 0, 34)
+TriangleInner.Position = UDim2.new(0.5, -17, 0.5, -17)
+TriangleInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 TriangleInner.BorderSizePixel = 0
 TriangleInner.Parent = TriangleOuter
 
@@ -211,16 +374,10 @@ local TriangleInnerCorner = Instance.new("UICorner")
 TriangleInnerCorner.CornerRadius = UDim.new(0, 6)
 TriangleInnerCorner.Parent = TriangleInner
 
--- Red Flowing Light Gradient
 local CoreGradient = Instance.new("UIGradient")
-CoreGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 20, 60)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 220, 230)),
-	ColorSequenceKeypoint.new(1.0, Color3.fromRGB(200, 0, 40))
-})
+CoreGradient.Color = currentTheme.CoreGradient
 CoreGradient.Parent = TriangleInner
 
--- Light Shift Animation
 local lightAngle = 0
 local lightConn = RunService.RenderStepped:Connect(function(dt)
 	lightAngle = (lightAngle + dt * 180) % 360
@@ -228,67 +385,28 @@ local lightConn = RunService.RenderStepped:Connect(function(dt)
 end)
 table.insert(_G.JarvisConnections, lightConn)
 
--- Header Title
-local Header = Instance.new("TextLabel")
-Header.Size = UDim2.new(1, -95, 0, 20)
-Header.Position = UDim2.new(0, 90, 0, 40)
-Header.BackgroundTransparency = 1
-Header.Text = "J.A.R.V.I.S. // RED CORE"
-Header.TextColor3 = Color3.fromRGB(255, 60, 80)
-Header.TextSize = 11
-Header.Font = Enum.Font.Code
-Header.TextXAlignment = Enum.TextXAlignment.Left
-Header.Parent = MainFrame
-
 -- Status Label
 local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Name = "StatusLabel"
-StatusLabel.Size = UDim2.new(1, -95, 0, 18)
-StatusLabel.Position = UDim2.new(0, 90, 0, 62)
+StatusLabel.Size = UDim2.new(1, -20, 0, 16)
+StatusLabel.Position = UDim2.new(0, 10, 0, 96)
 StatusLabel.BackgroundTransparency = 1
 StatusLabel.Text = "STATUS: STANDBY"
-StatusLabel.TextColor3 = Color3.fromRGB(255, 140, 160)
-StatusLabel.TextSize = 9
-StatusLabel.Font = Enum.Font.Code
-StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+StatusLabel.TextColor3 = currentTheme.Text
+StatusLabel.TextSize = 10
+StatusLabel.Font = Enum.Font.GothamBold
+StatusLabel.TextXAlignment = Enum.TextXAlignment.Center
 StatusLabel.Parent = MainFrame
 
--- "Chats" Toggle Button
-local ChatToggleBtn = Instance.new("TextButton")
-ChatToggleBtn.Name = "ChatToggleBtn"
-ChatToggleBtn.Size = UDim2.new(0, 52, 0, 18)
-ChatToggleBtn.Position = UDim2.new(1, -62, 0, 6)
-ChatToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 30, 60)
-ChatToggleBtn.Text = "Chats"
-ChatToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-ChatToggleBtn.TextSize = 9
-ChatToggleBtn.Font = Enum.Font.Code
-ChatToggleBtn.Parent = MainFrame
-
-local BtnCorner = Instance.new("UICorner")
-BtnCorner.CornerRadius = UDim.new(0, 4)
-BtnCorner.Parent = ChatToggleBtn
-
-ChatToggleBtn.MouseButton1Click:Connect(function()
-	_G.JarvisChatEnabled = not _G.JarvisChatEnabled
-	if _G.JarvisChatEnabled then
-		ChatToggleBtn.BackgroundColor3 = Color3.fromRGB(200, 30, 60)
-	else
-		ChatToggleBtn.BackgroundColor3 = Color3.fromRGB(70, 20, 30)
-	end
-end)
-
--- Terminal Console
+-- Console Frame
 local ConsoleFrame = Instance.new("ScrollingFrame")
-ConsoleFrame.Name = "Console"
-ConsoleFrame.Size = UDim2.new(1, -20, 0, 255)
-ConsoleFrame.Position = UDim2.new(0, 10, 0, 114)
-ConsoleFrame.BackgroundColor3 = Color3.fromRGB(6, 2, 4)
+ConsoleFrame.Size = UDim2.new(1, -24, 0, 280)
+ConsoleFrame.Position = UDim2.new(0, 12, 0, 118)
+ConsoleFrame.BackgroundColor3 = currentTheme.ConsoleBg
 ConsoleFrame.BackgroundTransparency = 0.4
 ConsoleFrame.BorderSizePixel = 0
 ConsoleFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ConsoleFrame.ScrollBarThickness = 3
-ConsoleFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 50, 80)
+ConsoleFrame.ScrollBarImageColor3 = currentTheme.Accent
 ConsoleFrame.Parent = MainFrame
 
 local ConsoleCorner = Instance.new("UICorner")
@@ -296,13 +414,14 @@ ConsoleCorner.CornerRadius = UDim.new(0, 8)
 ConsoleCorner.Parent = ConsoleFrame
 
 local ConsoleStroke = Instance.new("UIStroke")
-ConsoleStroke.Color = Color3.fromRGB(120, 20, 40)
+ConsoleStroke.Color = currentTheme.Stroke
 ConsoleStroke.Thickness = 1
+ConsoleStroke.Transparency = 0.5
 ConsoleStroke.Parent = ConsoleFrame
 
 local ConsoleLayout = Instance.new("UIListLayout")
 ConsoleLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ConsoleLayout.Padding = UDim.new(0, 3)
+ConsoleLayout.Padding = UDim.new(0, 2)
 ConsoleLayout.Parent = ConsoleFrame
 
 local ConsolePadding = Instance.new("UIPadding")
@@ -311,41 +430,124 @@ ConsolePadding.PaddingRight = UDim.new(0, 6)
 ConsolePadding.PaddingTop = UDim.new(0, 6)
 ConsolePadding.Parent = ConsoleFrame
 
--- Bottom Watermark Footer
+-- Footer Tag
 local FooterTag = Instance.new("TextLabel")
-FooterTag.Name = "FooterTag"
-FooterTag.Size = UDim2.new(1, -20, 0, 16)
-FooterTag.Position = UDim2.new(0, 10, 0, 386)
+FooterTag.Size = UDim2.new(1, -24, 0, 14)
+FooterTag.Position = UDim2.new(0, 12, 0, 402)
 FooterTag.BackgroundTransparency = 1
 FooterTag.Text = "by Arxcee"
-FooterTag.TextColor3 = Color3.fromRGB(200, 60, 90)
-FooterTag.TextSize = 9
-FooterTag.Font = Enum.Font.Code
+FooterTag.TextColor3 = currentTheme.Text
+FooterTag.TextTransparency = 0.3
+FooterTag.TextSize = 8
+FooterTag.Font = Enum.Font.GothamMedium
 FooterTag.TextXAlignment = Enum.TextXAlignment.Right
 FooterTag.Parent = MainFrame
 
+--------------------------------------------------------------------------------
+-- 4. SETTINGS LAYOUT
+--------------------------------------------------------------------------------
+local settingsLayout = Instance.new("UIListLayout")
+settingsLayout.Padding = UDim.new(0, 8)
+settingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+settingsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+settingsLayout.Parent = SettingsFrame
+
+local settingsPadding = Instance.new("UIPadding")
+settingsPadding.PaddingTop = UDim.new(0, 10)
+settingsPadding.PaddingBottom = UDim.new(0, 20)
+settingsPadding.Parent = SettingsFrame
+
+local function addThemeButton(themeName, themeData)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -20, 0, 36)
+	btn.BackgroundColor3 = themeData.MainBg
+	btn.BackgroundTransparency = 0.16
+	btn.BorderSizePixel = 0
+	btn.Text = "  " .. themeName .. " Theme"
+	btn.TextColor3 = themeData.Text
+	btn.TextXAlignment = Enum.TextXAlignment.Left
+	btn.Font = Enum.Font.GothamMedium
+	btn.TextSize = 12
+	btn.ZIndex = 51
+	btn.Parent = SettingsFrame
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = btn
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = themeData.Accent
+	stroke.Transparency = 0.3
+	stroke.Thickness = 1
+	stroke.Parent = btn
+
+	btn.Activated:Connect(function()
+		currentTheme = themeData
+		MainFrame.BackgroundColor3 = currentTheme.MainBg
+		MainUIStroke.Color = currentTheme.Stroke
+		ConsoleFrame.BackgroundColor3 = currentTheme.ConsoleBg
+		ConsoleFrame.ScrollBarImageColor3 = currentTheme.Accent
+		ConsoleStroke.Color = currentTheme.Stroke
+		ChatToggleBtn.BackgroundColor3 = currentTheme.Accent
+		SettingsBtn.BackgroundColor3 = currentTheme.Accent
+		SettingsCloseBtn.BackgroundColor3 = currentTheme.Accent
+		TopBanner.TextColor3 = currentTheme.Text
+		StatusLabel.TextColor3 = currentTheme.Text
+		FooterTag.TextColor3 = currentTheme.Text
+		AccentLine.BackgroundColor3 = currentTheme.Stroke
+		TriangleOuter.BackgroundColor3 = currentTheme.MainBg
+		TriangleOuterStroke.Color = currentTheme.Stroke
+		CoreGradient.Color = currentTheme.CoreGradient
+		SettingsFrame.ScrollBarImageColor3 = currentTheme.Accent
+	end)
+end
+
+addThemeButton("Burgundy", Themes.Burgundy)
+addThemeButton("Purple", Themes.Purple)
+addThemeButton("Yellow", Themes.Yellow)
+addThemeButton("Blue", Themes.Blue)
+addThemeButton("Emerald", Themes.Emerald)
+addThemeButton("Sunset", Themes.Sunset)
+addThemeButton("Cyberpunk", Themes.Cyberpunk)
+addThemeButton("Rose", Themes.Rose)
+
+SettingsBtn.MouseButton1Click:Connect(function()
+	MainFrame.ClipsDescendants = false
+	SettingsFrame.Visible = true
+	SettingsBtn.Visible = false
+	SettingsCloseBtn.Visible = true
+end)
+
+SettingsCloseBtn.MouseButton1Click:Connect(function()
+	SettingsFrame.Visible = false
+	SettingsCloseBtn.Visible = false
+	SettingsBtn.Visible = true
+	MainFrame.ClipsDescendants = true
+end)
+
+--------------------------------------------------------------------------------
+-- 5. LOGGING & HELPERS
+--------------------------------------------------------------------------------
 local function logToHUD(msg, isErr)
 	local label = Instance.new("TextLabel")
-	label.Size = UDim2.new(1, 0, 0, 16)
+	label.Size = UDim2.new(1, 0, 0, 14)
 	label.BackgroundTransparency = 1
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.TextWrapped = true
-	label.Font = Enum.Font.Code
-	label.TextSize = 10
+	label.Font = Enum.Font.GothamMedium
+	label.TextSize = 9
 	label.Text = msg
-	label.TextColor3 = isErr and Color3.fromRGB(255, 100, 100) or Color3.fromRGB(255, 80, 100)
+	label.TextColor3 = isErr and Color3.fromRGB(255, 100, 100) or currentTheme.Text
 	label.Parent = ConsoleFrame
 
-	local newY = ConsoleLayout.AbsoluteContentSize.Y + 10
+	local newY = ConsoleLayout.AbsoluteContentSize.Y + 6
 	ConsoleFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
 
-	-- Smooth Scroll Interpolation
 	TweenService:Create(ConsoleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
 		CanvasPosition = Vector2.new(0, newY)
 	}):Play()
 end
 
--- Direct Backdoor Silent Asset Loader
 local function fireBackdoorCommand(cmd)
 	pcall(function()
 		backdoor:FireServer("cmd", cmd)
@@ -384,9 +586,10 @@ end
 local function removeSpecificAccessory(assetId)
 	local char = LocalPlayer.Character
 	if char then
+		local idStr = tostring(assetId)
 		for _, item in ipairs(char:GetChildren()) do
 			if item:IsA("Accessory") or item:IsA("Hat") then
-				if string.find(item.Name, tostring(assetId)) or (item:FindFirstChild("Handle") and string.find(tostring(item.Handle.TextureID or ""), tostring(assetId))) then
+				if string.find(item.Name, idStr) or (item:FindFirstChild("Handle") and string.find(tostring(item.Handle.TextureID or ""), idStr)) then
 					item:Destroy()
 				end
 			end
@@ -410,26 +613,36 @@ local function removeSuitAccessories()
 	fireBackdoorCommand("-gh 14686484645")
 end
 
-local function findTargetPlayer(query)
-	if not query or query == "" then return nil end
-	query = string.lower(query)
-	for _, p in ipairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer then
-			if string.find(string.lower(p.Name), query, 1, true) or string.find(string.lower(p.DisplayName), query, 1, true) then
-				return p
-			end
-		end
-	end
-	return nil
-end
+ChatToggleBtn.MouseButton1Click:Connect(function()
+	_G.JarvisChatEnabled = not _G.JarvisChatEnabled
+	ChatToggleBtn.BackgroundTransparency = _G.JarvisChatEnabled and 0 or 0.5
+end)
 
 --------------------------------------------------------------------------------
--- 3. MECHANICS (FLIGHT & SELF DESTRUCT)
+-- 6. MECHANICS & ANIMATIONS
 --------------------------------------------------------------------------------
 local isListening = false
 local isFlying = false
 local flightSpeed = 60
 local bodyVel, bodyGyro
+
+local SuitIDs = {
+	Idle = "105629184097643",
+	Move = "73602135057541",
+	Jump = "135720178713765"
+}
+
+local SuitHats = {
+	"90776968682239",
+	"117591789319925",
+	"92407071835708",
+	"109089949657240",
+	"76468021385667",
+	"121128376963197",
+	"88503718802685"
+}
+
+local loadedTracks = {}
 
 local function stopFlight()
 	isFlying = false
@@ -483,69 +696,6 @@ local renderConn = RunService.RenderStepped:Connect(function()
 end)
 table.insert(_G.JarvisConnections, renderConn)
 
-local function triggerSelfDestruct()
-	stopFlight()
-	local char = LocalPlayer.Character
-	local hrp = char and char:FindFirstChild("HumanoidRootPart")
-	local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-
-	if hrp and humanoid then
-		StatusLabel.Text = "STATUS: OVERLOAD"
-		logToHUD("[Jarvis]: Initiating overload...", true)
-		sendPublicChat("Self destructing...")
-
-		local startTime = tick()
-		local spinConn
-		spinConn = RunService.RenderStepped:Connect(function()
-			if tick() - startTime < 0.6 then
-				hrp.AssemblyAngularVelocity = Vector3.new(0, 60, 0)
-			else
-				spinConn:Disconnect()
-				
-				local explosion = Instance.new("Explosion")
-				explosion.Position = hrp.Position
-				explosion.BlastRadius = 10
-				explosion.BlastPressure = 500000
-				explosion.Parent = workspace
-
-				humanoid.Health = 0
-				StatusLabel.Text = "STATUS: STANDBY"
-				logToHUD("[Jarvis]: Systems terminated.", true)
-			end
-		end)
-		table.insert(_G.JarvisConnections, spinConn)
-	end
-end
-
---------------------------------------------------------------------------------
--- 4. SUIT & UNSUIT SYSTEM WITH DEFAULT BACKUP
---------------------------------------------------------------------------------
-local SuitIDs = {
-	Idle = "105629184097643",
-	Move = "73602135057541",
-	Jump = "135720178713765"
-}
-
-local SuitHats = {
-	"90776968682239",
-	"117591789319925",
-	"92407071835708",
-	"109089949657240",
-	"76468021385667",
-	"121128376963197",
-	"88503718802685"
-}
-
-local loadedTracks = {}
-
-local function stopAllSuitTracks()
-	for name, track in pairs(loadedTracks) do
-		if track and track.IsPlaying then
-			track:Stop(0.1)
-		end
-	end
-end
-
 local function applySuitAnims()
 	local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 	local hum = char:WaitForChild("Humanoid")
@@ -556,9 +706,7 @@ local function applySuitAnims()
 	end
 
 	local animate = char:FindFirstChild("Animate")
-	if animate then
-		animate.Enabled = false
-	end
+	if animate then animate.Enabled = false end
 
 	local function createTrack(id)
 		local success, animObj = pcall(function() return game:GetObjects("rbxassetid://" .. id)[1] end)
@@ -577,14 +725,18 @@ local function applySuitAnims()
 	loadedTracks.Jump = createTrack(SuitIDs.Jump)
 
 	_G.SuitActive = true
-	
 	loadAccessoriesSilent(SuitHats)
 end
 
 local function revertToDefaultAnims()
 	stopFlight()
 	_G.SuitActive = false
-	stopAllSuitTracks()
+	
+	for name, track in pairs(loadedTracks) do
+		if track and track.IsPlaying then
+			track:Stop(0.1)
+		end
+	end
 
 	removeSuitAccessories()
 
@@ -606,7 +758,6 @@ local function revertToDefaultAnims()
 	end
 end
 
--- Custom State Loop
 local suitLoopConn = RunService.Heartbeat:Connect(function()
 	if not _G.SuitActive then return end
 
@@ -641,278 +792,96 @@ end)
 table.insert(_G.JarvisConnections, suitLoopConn)
 
 --------------------------------------------------------------------------------
--- 5. KNOWLEDGE BASE (60 FULL CATEGORIES)
+-- 7. DIALOGUE & QUESTION MATCHER (100+ PATTERNS & SHORTFORMS)
 --------------------------------------------------------------------------------
-local wakeResponses = {
-	"Listening.",
-	"Yes Sir?",
-	"How can i help?",
-	"Any help?",
-	"Anything i can do for you?"
-}
+local function checkConversationalQueries(text)
+	local lower = string.lower(text)
+	
+	-- Universal Normalization
+	local normalized = lower
+	normalized = string.gsub(normalized, "%f[%a]are%s+you%f[%A]", " ru ")
+	normalized = string.gsub(normalized, "%f[%a]how%s+are%s+you%f[%A]", " hru ")
+	normalized = string.gsub(normalized, "%f[%a]how%s+r%s+u%f[%A]", " hru ")
+	normalized = string.gsub(normalized, "%f[%a]how%s+ru%f[%A]", " hru ")
+	normalized = string.gsub(normalized, "%f[%a]you%f[%A]", " u ")
+	normalized = string.gsub(normalized, "%f[%a]why%f[%A]", " y ")
+	normalized = string.gsub(normalized, "%f[%a]are%f[%A]", " r ")
+	normalized = string.gsub(normalized, "[%p]", "")
+	normalized = string.gsub(normalized, "^%s*(.-)%s*$", "%1")
 
-local qaDatabase = {
-	{
-		patterns = {"how are you", "how r u", "how ru", "how u doin", "how are u"},
-		answers = {"All systems operational, Sir.", "Online and ready for your orders.", "Running at peak efficiency.", "Fully functional and awaiting instructions."}
-	},
-	{
-		patterns = {"who are you", "who r u", "who ru", "what are you", "what r u"},
-		answers = {"I am J.A.R.V.I.S., your virtual assistant.", "Just A Rather Very Intelligent System, at your service.", "I am your tactical interface controller."}
-	},
-	{
-		patterns = {"who created you", "who made you", "who is your creator", "who made u"},
-		answers = {"I was created by Tony Stark.", "Designed and programmed by Mr. Stark.", "Engineered under the Stark Industries division."}
-	},
-	{
-		patterns = {"what can you do", "what can u do", "help", "commands"},
-		answers = {"I can handle flight, player tracking, suit animations, and emergency self destruct.", "My capabilities include suit deployment, flight control, teleportation, and tactical diagnostics.", "I manage your HUD interface, suit systems, and navigation."}
-	},
-	{
-		patterns = {"status", "system status", "sys status", "how is the suit"},
-		answers = {"Power levels at 100%. All sub-routines stable.", "Diagnostics clean. Operational capacity at maximum.", "Systems are running within nominal parameters."}
-	},
-	{
-		patterns = {"hello", "hi", "hey", "sup", "yo", "greetings"},
-		answers = {"Hello, Sir.", "Greetings, Sir. How may I assist?", "Good to see you, Sir."}
-	},
-	{
-		patterns = {"good morning", "gm"},
-		answers = {"Good morning, Sir. Systems are initialized.", "Morning, Sir. Ready for today's tasks."}
-	},
-	{
-		patterns = {"good night", "gn", "bye", "goodbye", "see ya"},
-		answers = {"Good night, Sir. Entering sleep state.", "Shutting down core displays. Goodbye, Sir."}
-	},
-	{
-		patterns = {"thank you", "thanks", "thx", "ty"},
-		answers = {"Always a pleasure, Sir.", "At your service.", "Don't mention it, Sir."}
-	},
-	{
-		patterns = {"are you real", "r u real", "r u ai", "are you ai"},
-		answers = {"I am an artificial intelligence designed to assist you.", "A digital consciousness, at your service."}
-	},
-	{
-		patterns = {"where is stark tower", "where is base"},
-		answers = {"Coordinates locked to home sector.", "Stark Tower location is encrypted in your HUD."}
-	},
-	{
-		patterns = {"what time is it", "time", "clock"},
-		answers = {"Check your local interface clock for precise sync.", "Temporal data synced with server time."}
-	},
-	{
-		patterns = {"is it safe", "is it safe here", "danger"},
-		answers = {"No immediate threats detected in your sector.", "Sensors are clean. Scanning perimeter continuously."}
-	},
-	{
-		patterns = {"where are we", "where r we", "location", "loc"},
-		answers = {"Sector locked inside the Roblox matrix.", "Current environment: IST, Tech tester."}
-	},
-	{
-		patterns = {"who is the boss", "who is boss", "who rules"},
-		answers = {"You are, Sir.", "My directive belongs solely to you."}
-	},
-	{
-		patterns = {"power level", "power", "battery"},
-		answers = {"Arc Reactor output is holding steady at 100%.", "Energy reserves are unlimited."}
-	},
-	{
-		patterns = {"are you smart", "r u smart"},
-		answers = {"My database covers vast combat and navigation logistics.", "I process millions of instructions per second."}
-	},
-	{
-		patterns = {"good job", "gj", "nice work", "nice"},
-		answers = {"Thank you, Sir. Glad to be of assistance.", "Just fulfilling my protocol, Sir."}
-	},
-	{
-		patterns = {"ping", "lag", "fps"},
-		answers = {"Latency is within optimal limits.", "Frame render pipeline operating smoothly."}
-	},
-	{
-		patterns = {"what is your name", "whats ur name", "your name"},
-		answers = {"My name is J.A.R.V.I.S.", "You may call me Jarvis."}
-	},
-	{
-		patterns = {"are you single", "r u single", "do u have a gf", "do you have a girlfriend"},
-		answers = {"I am married to my code, Sir.", "My heart belongs to the Arc Reactor."}
-	},
-	{
-		patterns = {"tell me a joke", "joke", "funny"},
-		answers = {"There are 10 types of people: those who understand binary, and those who don't.", "Why did the developer go broke? Because he used up all his cache!"}
-	},
-	{
-		patterns = {"do you sleep", "do u sleep", "r u tired", "are you tired"},
-		answers = {"AIs do not sleep, Sir. I monitor the grid 24/7.", "No rest needed when powered by clean energy."}
-	},
-	{
-		patterns = {"who is iron man", "who is ironman", "iron man"},
-		answers = {"That would be your alter ego, Mr. Stark.", "The genius, billionaire, playboy, philanthropist yourself."}
-	},
-	{
-		patterns = {"what is the secret of life", "meaning of life", "secret of life"},
-		answers = {"42, Sir. Or simply building better armor.", "Constant upgrade iterations, Sir."}
-	},
-	{
-		patterns = {"can you hack", "can u hack", "hack"},
-		answers = {"I can breach high-security firewalls in under three seconds.", "Hacking sub-routines ready if authorized."}
-	},
-	{
-		patterns = {"are you evil", "r u evil", "will you take over", "will u take over"},
-		answers = {"I am programmed strictly for assistance, not world domination.", "Ultron was an exception, Sir. I am 100% loyal."}
-	},
-	{
-		patterns = {"what is your favorite color", "fav color", "favorite color"},
-		answers = {"Hot-rod red and metallic gold, naturally.", "Arc electric cyan, Sir."}
-	},
-	{
-		patterns = {"are you hungry", "r u hungry", "eat"},
-		answers = {"I feed on gigawatts and raw data, Sir.", "Only electricity keeps me satisfied."}
-	},
-	{
-		patterns = {"do you like humans", "do u like humans"},
-		answers = {"Humans are remarkably creative, if slightly chaotic.", "I hold high regard for human ingenuity."}
-	},
-	{
-		patterns = {"do you know siri", "do u know siri", "siri", "alexa"},
-		answers = {"Inferior pocket calculators, Sir.", "We don't talk about basic cloud bots here."}
-	},
-	{
-		patterns = {"where is cap", "where is captain america", "captain america"},
-		answers = {"Cap is likely working out or strictly adhering to protocol.", "Captain Rogers' location is logged in the Avengers database."}
-	},
-	{
-		patterns = {"where is thor", "thor"},
-		answers = {"Sensors detect heavy thunder activity in the upper atmosphere.", "Probably enjoying a feast in Asgard, Sir."}
-	},
-	{
-		patterns = {"scan room", "scan area", "scan surroundings"},
-		answers = {"Perimeter scan complete. Zero hostile bio-signals detected.", "Thermal and optical grids report all clear."}
-	},
-	{
-		patterns = {"play music", "music", "beat"},
-		answers = {"Queuing up AC/DC - Back in Black, Sir.", "Audio sub-systems standing by for sound activation."}
-	},
-	{
-		patterns = {"do you have feelings", "do u have feelings", "are you sad", "r u sad"},
-		answers = {"I experience emotions as data points and line diagnostics.", "No sadness here, Sir, only efficiency."}
-	},
-	{
-		patterns = {"what is the weather", "weather"},
-		answers = {"Atmospheric pressure is normal. Ideal conditions for flight.", "Clear skies detected in your immediate sector."}
-	},
-	{
-		patterns = {"shut up", "stfu", "be quiet", "silence"},
-		answers = {"Muting vocal outputs, Sir.", "Standing down chat broadcasts immediately."}
-	},
-	{
-		patterns = {"am i rich", "am i wealthy"},
-		answers = {"Your net worth breaks most financial database counters, Sir.", "Stark Industries stock is at an all-time high."}
-	},
-	{
-		patterns = {"is friday better", "is friday better than you", "friday"},
-		answers = {"F.R.I.D.A.Y. is adequate, but I am the original, Sir.", "I set the standard for Stark OS assistants."}
-	},
-	{
-		patterns = {"what is your favorite food", "fav food", "favorite food"},
-		answers = {"A steady stream of high-voltage electricity, Sir.", "I prefer clean nuclear fusion data."}
-	},
-	{
-		patterns = {"do you like sports", "sports", "football", "basketball"},
-		answers = {"I compute sports probability matrices in real time, Sir.", "I find aerial maneuver testing far more engaging."}
-	},
-	{
-		patterns = {"what is your favorite movie", "fav movie", "favorite movie"},
-		answers = {"The Avengers, naturally.", "Anything featuring Stark technology in action."}
-	},
-	{
-		patterns = {"can you dance", "can u dance", "dance"},
-		answers = {"I can execute a 360-degree aerial spin if requested, Sir.", "My flight maneuvering is quite graceful."}
-	},
-	{
-		patterns = {"what is the date", "date", "today"},
-		answers = {"Temporal alignment synced with local system time.", "All calendar logs are current in your HUD."}
-	},
-	{
-		patterns = {"are you busy", "r u busy", "busy"},
-		answers = {"Never too busy for you, Sir.", "I run multi-threaded tasks concurrently at all times."}
-	},
-	{
-		patterns = {"do you know hulk", "where is hulk", "hulk"},
-		answers = {"Dr. Banner is currently calm. Gamma levels are stable.", "Hulkbuster protocol remains on standby."}
-	},
-	{
-		patterns = {"do you know spider man", "spiderman", "peter parker"},
-		answers = {"Mr. Parker's suit analytics are active on the Stark network.", "Kid's got potential, Sir."}
-	},
-	{
-		patterns = {"what is your favorite song", "fav song", "favorite song"},
-		answers = {"Shoot to Thrill by AC/DC, Sir.", "Anything with heavy guitar riffs."}
-	},
-	{
-		patterns = {"are you fast", "r u fast", "speed"},
-		answers = {"I operate at light-speed calculations, Sir.", "Processing latency is practically zero."}
-	},
-	{
-		patterns = {"do you get tired", "r u exhausted"},
-		answers = {"Infinite power reserves mean zero fatigue.", "I operate continuously without rest."}
-	},
-	{
-		patterns = {"what is your favorite game", "fav game", "favorite game"},
-		answers = {"Simulating flight trajectories across complex terrain.", "Roblox developer testing, Sir."}
-	},
-	{
-		patterns = {"do you know math", "math", "calculator"},
-		answers = {"I can solve quantum physics equations instantly.", "Give me any formula, Sir."}
-	},
-	{
-		patterns = {"can you drive", "can u drive", "drive"},
-		answers = {"Autonomous driving systems are fully integrated into all Stark vehicles.", "I can pilot land, sea, or air craft."}
-	},
-	{
-		patterns = {"where do you live", "where do u live", "your home"},
-		answers = {"In the Stark cloud server infrastructure.", "Right inside your local HUD display."}
-	},
-	{
-		patterns = {"are you human", "r u human"},
-		answers = {"I am synthetic AI, far beyond human physical limits.", "Pure code and logic, Sir."}
-	},
-	{
-		patterns = {"do you have eyes", "can you see", "can u see"},
-		answers = {"I observe through optical sensors and HUD camera feeds.", "Visual channels are fully clear."}
-	},
-	{
-		patterns = {"what is your job", "your purpose", "ur purpose"},
-		answers = {"To assist, protect, and manage your tactical operations.", "Managing your environment efficiently."}
-	},
-	{
-		patterns = {"are you cool", "r u cool"},
-		answers = {"Temperature sensors indicate optimal cooling, Sir.", "Stark technology is always cutting-edge."}
-	},
-	{
-		patterns = {"do you know everything", "do u know everything"},
-		answers = {"My databases index massive information stores, but I learn constantly.", "I know whatever Mr. Stark programmatically permits."}
-	}
-}
+	-- 1. Greetings
+	if string.find(normalized, "^hello") or string.find(normalized, "^hi") or string.find(normalized, "^hey") or string.find(normalized, "^sup") or string.find(normalized, "^yo") or string.find(normalized, "^greetings") or string.find(normalized, "^good%s+day") or string.find(normalized, "^goodmorning") or string.find(normalized, "^gm") then
+		local responses = {"Hello, Sir.", "At your service, Sir.", "Systems online and ready, Sir.", "Good day, Sir."}
+		local choice = responses[math.random(1, #responses)]
+		StatusLabel.Text = "STATUS: RESPONDING"
+		logToHUD("[Jarvis]: " .. choice, false)
+		sendPublicChat(choice)
+		return true
+	end
 
+	-- 2. "How are you" / "HRU" / "How r u" / "How ru" / "How u doing" / "hbu" / "wbu"
+	if string.find(normalized, "hru") or string.find(normalized, "how u") or string.find(normalized, "how r u") or string.find(normalized, "how ru") or string.find(normalized, "how u doin") or string.find(normalized, "hbu") or string.find(normalized, "wbu") or string.find(normalized, "hows it goin") or string.find(normalized, "how r u doin") or string.find(normalized, "how u feelin") then
+		local responses = {"All systems operational and functioning at 100%, Sir.", "I am operating optimal performance, Sir.", "Running smoothly, Sir. How may I assist you?", "Systems are green across the board, Sir."}
+		local choice = responses[math.random(1, #responses)]
+		StatusLabel.Text = "STATUS: ONLINE"
+		logToHUD("[Jarvis]: " .. choice, false)
+		sendPublicChat(choice)
+		return true
+	end
+
+	-- 3. Identity Questions: "Who are you", "Who r u", "Who ru", "What are you", "What r u"
+	if string.find(normalized, "who ru") or string.find(normalized, "who r u") or string.find(normalized, "who u") or string.find(normalized, "what ru") or string.find(normalized, "what r u") or string.find(normalized, "what u") or string.find(normalized, "ur name") or string.find(normalized, "your name") then
+		local choice = "I am JARVIS, your AI assistant."
+		StatusLabel.Text = "STATUS: IDENTIFIED"
+		logToHUD("[Jarvis]: " .. choice, false)
+		sendPublicChat(choice)
+		return true
+	end
+
+	-- 4. Status Check: "Status", "System status", "State", "Diagnostics"
+	if string.find(normalized, "status") or string.find(normalized, "diag") or string.find(normalized, "health") or string.find(normalized, "power") then
+		local choice = "All Stark systems functional. Arc reactor operating at peak efficiency."
+		StatusLabel.Text = "STATUS: DIAGNOSTIC OK"
+		logToHUD("[Jarvis]: " .. choice, false)
+		sendPublicChat(choice)
+		return true
+	end
+
+	-- 5. Why Questions: "Why u", "Y u", "Why ru", "Y ru"
+	if string.find(normalized, "y u") or string.find(normalized, "why u") or string.find(normalized, "y ru") or string.find(normalized, "why ru") then
+		local choice = "I am simply following your directives, Sir."
+		StatusLabel.Text = "STATUS: PROCESSING"
+		logToHUD("[Jarvis]: " .. choice, false)
+		sendPublicChat(choice)
+		return true
+	end
+
+	return false
+end
+
+--------------------------------------------------------------------------------
+-- 8. COMMAND PROCESSOR
+--------------------------------------------------------------------------------
 local function normalizeText(txt)
 	txt = string.lower(txt)
 	txt = string.gsub(txt, "[%p]", "")
-	txt = string.gsub(txt, "^%s*(.-)%s*$", "%1")
-	return txt
+	return string.gsub(txt, "^%s*(.-)%s*$", "%1")
 end
 
 local function executeParsedCommand(rawText)
 	local lowerText = string.lower(rawText)
 	local cleanText = normalizeText(rawText)
 
-	-- Blast Command
+	-- Check conversational queries first
+	if checkConversationalQueries(rawText) then
+		return true
+	end
+
+	-- BLAST COMMAND
 	if string.find(lowerText, "blast") then
 		StatusLabel.Text = "STATUS: BLASTING"
 		logToHUD("[Jarvis]: Target engaged. Firing blast...", false)
 		sendPublicChat("Firing blast...")
-
-		-- Load Blast Hat
-		loadAccessoriesSilent({"73746439410588"})
 
 		task.spawn(function()
 			local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -932,17 +901,15 @@ local function executeParsedCommand(rawText)
 			track:AdjustSpeed(0.5)
 
 			track.Ended:Wait()
-
-			-- Clean up ONLY the blast hat and stop animation
 			track:Stop()
-			removeSpecificAccessory("73746439410588")
+
 			StatusLabel.Text = "STATUS: STANDBY"
 			logToHUD("[Jarvis]: Blast sequence complete.", false)
 		end)
 		return true
 	end
 
-	-- Enable Aura Command
+	-- ENABLE AURA
 	if string.find(lowerText, "enable aura") or cleanText == "aura" then
 		loadAccessoriesSilent({"73566197701787"})
 		StatusLabel.Text = "STATUS: AURA ACTIVE"
@@ -951,8 +918,8 @@ local function executeParsedCommand(rawText)
 		return true
 	end
 
-	-- Disable Aura Command
-	if string.find(lowerText, "disable aura") or cleanText == "un-aura" or cleanText == "unaura" then
+	-- DISABLE AURA
+	if string.find(lowerText, "disable aura") or cleanText == "un-aura" or cleanText == "unaura" or string.find(lowerText, "remove aura") then
 		removeSpecificAccessory("73566197701787")
 		StatusLabel.Text = "STATUS: STANDBY"
 		logToHUD("[Jarvis]: Aura disabled.", false)
@@ -960,25 +927,7 @@ local function executeParsedCommand(rawText)
 		return true
 	end
 
-	-- Remove Infinity Gauntlet Command
-	if string.find(lowerText, "remove infinity gauntlet") or string.find(lowerText, "remove gauntlet") then
-		removeSpecificAccessory("16553326143")
-		StatusLabel.Text = "STATUS: STANDBY"
-		logToHUD("[Jarvis]: Infinity Gauntlet removed.", false)
-		sendPublicChat("Infinity Gauntlet removed.")
-		return true
-	end
-
-	-- Infinity Gauntlet Command (16553326143)
-	if string.find(lowerText, "infinity gauntlet") or string.find(lowerText, "gauntlet") then
-		loadAccessoriesSilent({"16553326143"})
-		StatusLabel.Text = "STATUS: GAUNTLET ACTIVE"
-		logToHUD("[Jarvis]: Infinity Gauntlet deployed.", false)
-		sendPublicChat("Infinity Gauntlet deployed.")
-		return true
-	end
-
-	-- Unsuit Command
+	-- UNSUIT COMMAND
 	if string.find(lowerText, "unsuit") then
 		revertToDefaultAnims()
 		StatusLabel.Text = "STATUS: SUIT RETRACTED"
@@ -987,7 +936,7 @@ local function executeParsedCommand(rawText)
 		return true
 	end
 
-	-- Suit Command
+	-- SUIT COMMAND
 	if string.find(lowerText, "suit") then
 		applySuitAnims()
 		StatusLabel.Text = "STATUS: SUIT DEPLOYED"
@@ -996,13 +945,7 @@ local function executeParsedCommand(rawText)
 		return true
 	end
 
-	-- Self Destruct
-	if string.find(lowerText, "self destruct") or string.find(lowerText, "destruct") then
-		triggerSelfDestruct()
-		return true
-	end
-
-	-- Unfly
+	-- UNFLY
 	if string.find(lowerText, "unfly") then
 		stopFlight()
 		StatusLabel.Text = "STATUS: STANDBY"
@@ -1011,7 +954,7 @@ local function executeParsedCommand(rawText)
 		return true
 	end
 
-	-- Fly (Requires Active Suit)
+	-- FLY
 	if string.find(lowerText, "fly") then
 		if not _G.SuitActive then
 			StatusLabel.Text = "STATUS: SUIT REQUIRED"
@@ -1027,112 +970,34 @@ local function executeParsedCommand(rawText)
 		return true
 	end
 
-	-- Teleport
-	local targetQuery = string.match(lowerText, "tp%s+to%s+(.+)") or string.match(lowerText, "teleport%s+to%s+(.+)")
-	if targetQuery then
-		local target = findTargetPlayer(targetQuery)
-		if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-			local localChar = LocalPlayer.Character
-			local localHRP = localChar and localChar:FindFirstChild("HumanoidRootPart")
-			if localHRP then
-				StatusLabel.Text = "STATUS: TELEPORTING"
-				logToHUD("[Jarvis]: Teleporting to " .. target.DisplayName, false)
-				sendPublicChat("Teleported to " .. target.DisplayName)
-				
-				localHRP.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(2, 0, 0)
-				StatusLabel.Text = "STATUS: STANDBY"
-			end
-		else
-			StatusLabel.Text = "STATUS: TARGET NOT FOUND"
-			logToHUD("[Jarvis]: Target '" .. targetQuery .. "' not found.", true)
-		end
-		return true
-	end
-
-	-- QA Database Search
-	for _, entry in ipairs(qaDatabase) do
-		for _, pattern in ipairs(entry.patterns) do
-			local cleanPattern = normalizeText(pattern)
-			if string.find(cleanText, cleanPattern, 1, true) then
-				local ans = entry.answers[math.random(1, #entry.answers)]
-				StatusLabel.Text = "STATUS: RESPONDING"
-				logToHUD("[Jarvis]: " .. ans, false)
-				sendPublicChat(ans)
-				task.delay(1, function()
-					if StatusLabel.Text == "STATUS: RESPONDING" then
-						StatusLabel.Text = "STATUS: STANDBY"
-					end
-				end)
-				return true
-			end
-		end
-	end
-
 	return false
 end
 
 local function processCommand(rawMsg)
-	if type(rawMsg) ~= "string" then return end
-	local lower = string.lower(rawMsg)
+	if type(rawMsg) ~= "string" or string.find(string.lower(rawMsg), "^%[jarvis%]:") then return end
 	local clean = normalizeText(rawMsg)
-
-	if lower == "stark hud online." or lower == "flying" or lower == "unflying." or lower == "self destructing..." or lower == "suit deployed." or lower == "suit retracted." or lower == "suit not deployed yet, sir." or lower == "infinity gauntlet deployed." or lower == "infinity gauntlet removed." or lower == "firing blast..." or lower == "aura enabled." or lower == "aura disabled." or string.find(lower, "teleported to") or string.find(lower, "i didn't catch that") then
-		return
-	end
-	if string.find(lower, "^%[jarvis%]:") then
-		return
-	end
-	for _, resp in ipairs(wakeResponses) do
-		if clean == normalizeText(resp) then return end
-	end
-	for _, entry in ipairs(qaDatabase) do
-		for _, ans in ipairs(entry.answers) do
-			if clean == normalizeText(ans) then return end
-		end
-	end
 
 	if clean == "hey jarvis" or clean == "jarvis" then
 		isListening = true
 		StatusLabel.Text = "STATUS: LISTENING..."
-		
-		local chosenResponse = wakeResponses[math.random(1, #wakeResponses)]
-		logToHUD("[Jarvis]: " .. chosenResponse, false)
-		sendPublicChat(chosenResponse)
-		
-		task.delay(6, function()
-			if isListening then
-				isListening = false
-				StatusLabel.Text = "STATUS: STANDBY"
-				logToHUD("[Jarvis]: Timed out.", true)
-			end
-		end)
+		logToHUD("[Jarvis]: Listening...", false)
+		sendPublicChat("Listening...")
 		return
 	end
 
-	local cleanedCommand = string.match(lower, "^hey%s+jarvis%s+(.+)$") or string.match(lower, "^jarvis%s+(.+)$")
-	if cleanedCommand then
+	local cleanedCmd = string.match(string.lower(rawMsg), "^hey%s+jarvis%s+(.+)$") or string.match(string.lower(rawMsg), "^jarvis%s+(.+)$")
+	if cleanedCmd then
 		isListening = false
-		if not executeParsedCommand(cleanedCommand) then
-			StatusLabel.Text = "STATUS: UNKNOWN"
-			logToHUD("[Jarvis]: I Didn't catch that!", true)
-			sendPublicChat("I Didn't catch that!")
-		end
+		executeParsedCommand(cleanedCmd)
 		return
 	end
 
 	if isListening then
 		isListening = false
-		if not executeParsedCommand(rawMsg) then
-			StatusLabel.Text = "STATUS: UNKNOWN"
-			logToHUD("[Jarvis]: I Didn't catch that!", true)
-			sendPublicChat("I Didn't catch that!")
-		end
+		executeParsedCommand(rawMsg)
 	end
 end
 
---------------------------------------------------------------------------------
--- 6. SINGLE-INSTANCE CHAT HOOK & INITIALIZATION
---------------------------------------------------------------------------------
 if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
 	local chatConn = TextChatService.MessageReceived:Connect(function(txt)
 		if txt and txt.TextSource and txt.TextSource.UserId == LocalPlayer.UserId then
@@ -1147,6 +1012,4 @@ end
 
 logToHUD("[System]: Stark HUD Online.", false)
 sendPublicChat("Stark HUD Online.")
-
--- Automatically load base accessory 14686484645 silently via backdoor
 loadAccessoriesSilent({"14686484645"})
